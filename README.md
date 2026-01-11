@@ -80,15 +80,32 @@ var app = await client.Apps.CreateAsync("proj_abc123", new CreateAppRequest(
 ### Customers
 
 ```csharp
+// Create a customer with attributes
 var customer = await client.Customers.CreateAsync("proj_abc123", new CreateCustomerRequest(
     Id: "user_12345",
     Attributes: new[]
     {
-        new CustomerAttribute("$email", "user@example.com"),
-        new CustomerAttribute("$displayName", "John Doe")
+        new CustomerAttributeInput("$email", "user@example.com"),
+        new CustomerAttributeInput("$displayName", "John Doe")
     }
 ));
 
+// Grant an entitlement to a customer
+await client.Customers.GrantEntitlementAsync("proj_abc123", "customer_id",
+    new GrantEntitlementRequest(
+        EntitlementId: "ent_premium",
+        ExpiresAt: DateTimeOffset.UtcNow.AddMonths(1).ToUnixTimeMilliseconds()
+    ));
+
+// Revoke a granted entitlement
+await client.Customers.RevokeGrantedEntitlementAsync("proj_abc123", "customer_id",
+    new RevokeGrantedEntitlementRequest(EntitlementId: "ent_premium"));
+
+// Assign an offering override
+await client.Customers.AssignOfferingAsync("proj_abc123", "customer_id",
+    new AssignOfferingRequest(OfferingId: "offering_special"));
+
+// Transfer customer data
 await client.Customers.TransferAsync("proj_abc123", "old_customer_id", 
     new TransferCustomerRequest("new_customer_id"));
 ```
@@ -228,6 +245,8 @@ services.AddSingleton<IRevenueCatClient>(sp =>
 - ✅ **Customer Attributes** - Manage custom attributes
 - ✅ **Customer Aliases** - List customer aliases
 - ✅ **Active Entitlements** - Query customer entitlements
+- ✅ **Grant/Revoke Entitlements** - Grant and revoke promotional entitlements
+- ✅ **Assign Offering** - Override customer offerings
 - ✅ **Authenticated Management URLs** - Generate customer portal links
 - ✅ **Store Product Creation** - Push products to App Store Connect
 - ✅ **Expandable Fields** - Reduce API calls with field expansion
@@ -331,20 +350,39 @@ var purchases = await client.Purchases.SearchPurchasesAsync(
 Manage in-app currencies:
 
 ```csharp
-// Add currency
-var balance = await client.Customers.CreateVirtualCurrencyTransactionAsync(
+// Add currency (multiple currencies at once)
+var balances = await client.Customers.CreateVirtualCurrencyTransactionAsync(
     projectId,
     customerId,
-    new CreateVirtualCurrencyTransactionRequest("GEMS", 100),
+    new CreateVirtualCurrencyTransactionRequest(
+        Adjustments: new Dictionary<string, int>
+        {
+            { "GEMS", 100 },
+            { "COINS", 500 }
+        },
+        Reference: "purchase_reward"
+    ),
     idempotencyKey: "unique-key"
 );
 
-// Deduct currency
-await client.Customers.CreateVirtualCurrencyTransactionAsync(
+// Update balance directly (without transaction record)
+await client.Customers.UpdateVirtualCurrencyBalanceAsync(
     projectId,
     customerId,
-    new CreateVirtualCurrencyTransactionRequest("GEMS", -25),
+    new UpdateVirtualCurrencyBalanceRequest(
+        Adjustments: new Dictionary<string, int>
+        {
+            { "GEMS", 50 }  // Set absolute balance
+        }
+    ),
     idempotencyKey: "another-unique-key"
+);
+
+// List all balances
+var allBalances = await client.Customers.ListVirtualCurrencyBalancesAsync(
+    projectId,
+    customerId,
+    includeEmptyBalances: true
 );
 ```
 
@@ -369,7 +407,7 @@ var transfer = await client.Customers.TransferAsync(
 |----------|------|-----|--------|--------|--------|---------|
 | Projects | ✅ | - | - | - | - | - |
 | Apps | ✅ | ✅ | ✅ | ✅ | ✅ | Get StoreKit Config, List API Keys |
-| Customers | ✅ | ✅ | ✅ | - | ✅ | Transfer, List Aliases, Manage Attributes |
+| Customers | ✅ | ✅ | ✅ | - | ✅ | Transfer, Grant/Revoke Entitlement, Assign Offering, Manage Attributes |
 | Products | ✅ | ✅ | ✅ | - | ✅ | Create in Store |
 | Entitlements | ✅ | ✅ | ✅ | ✅ | ✅ | Attach/Detach Products |
 | Offerings | ✅ | ✅ | ✅ | ✅ | ✅ | Set Default |

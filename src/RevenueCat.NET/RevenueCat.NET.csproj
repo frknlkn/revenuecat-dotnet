@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>RevenueCat.NET</PackageId>
-    <Version>2.0.1</Version>
+    <Version>2.1.2</Version>
     <Authors>frknlkn</Authors>
     <Company>frknlkn</Company>
     <Description>A comprehensive, production-ready .NET 8 client library for RevenueCat REST API v2. Built with Refit for type-safe HTTP calls. Complete implementation with 50+ models, 20+ enums, full CRUD operations, pagination, expandable fields, search, virtual currency, subscription management, and advanced error handling. Supports all platforms: iOS, Android, Web, Stripe, Amazon, Roku, and Paddle.</Description>
@@ -16,8 +16,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/frknlkn/revenuecat-dotnet</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Copyright>Copyright (c) 2025 frknlkn</Copyright>
-    <PackageReleaseNotes>v2.0.1: Migrated to Refit for improved HTTP handling. All endpoints now use type-safe Refit client. Fixes URL construction issues and improves reliability.</PackageReleaseNotes>
+    <Copyright>Copyright (c) 2026 frknlkn</Copyright>
+    <PackageReleaseNotes>v2.1.0: Added missing Customer endpoints - GrantEntitlement, RevokeGrantedEntitlement, AssignOffering, ListSubscriptions, ListPurchases, ListInvoices, GetInvoiceFile. Fixed Virtual Currency endpoint paths to match API spec. Added CustomerAttributeInput model for request bodies. Improved JSON serialization with proper property names.</PackageReleaseNotes>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
